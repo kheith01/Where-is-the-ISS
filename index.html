@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link  
+        rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin="">
+    </script>
+    <style>
+        #issMap{
+            height: 180px;
+        }
+    </style>
+    <title>Fetch JSON from API and map lat and lon</title>
+    <style>
+        span{
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+<body>
+<h1>Where is the ISS</h1>
+<p>
+    Latitude: <span id="lat"></span><br>
+    Longitude: <span id="lon"></span>
+</p>
+<div id="issMap"></div>
+
+<script>
+    
+    // async function getIss(){
+    //     const api_url = fetch('https://api.wheretheiss.at/v1/satellites/25544');
+    //     const response = await api_url;
+    //     const data = await response.json();
+    //     const { latitude, longitude, name, id, velocity } = data; 
+    //     // console.log(data)
+    //     document.getElementById('name').textContent = name;
+    //     document.getElementById('id').textContent = id;
+    //     document.getElementById('lat').textContent = latitude.toFixed(2);
+    //     document.getElementById('lon').textContent = longitude.toFixed(2);
+    //     document.getElementById('velocity').textContent = velocity.toFixed(2);
+
+    // }   
+    // setInterval(getIss,1000)
+
+    // Making a Map an Tiles
+    const mymap = L.map('issMap').setView([0, 0], 1); // creating the map view
+    const attribution = 
+        '&copy; <a herf="https://www.openstreetmap.org">OpenStreetMap</a> contributors'; // needed to everytime you will use the open stres
+    const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';// link of the tiles that consist of images of the map
+    const tiles = L.tileLayer(tileUrl, { attribution }) //this will display the map
+    tiles.addTo(mymap);
+
+    // Making a Marker and an custom Icon
+    const issIcon = L.icon({
+        iconUrl: 'iss200.png',
+        iconSize: [50, 32],
+        iconAnchor: [25, 16],
+    });
+
+
+    const marker = L.marker([0,0], { icon: issIcon }).addTo(mymap); // setting the marker for a default location before navigating to the real data
+    const api_url = fetch('https://api.wheretheiss.at/v1/satellites/25544');
+    
+    async function getIss(){
+        const response = await api_url;
+        const data = await response.json();
+        const { latitude, longitude } = data;
+        // L.marker([latitude,longitude]).addTo(mymap)
+        // console.log(data)
+        marker.setLatLng([latitude,longitude]); // setting the latitude and longitude dynamically
+        document.getElementById('lat').textContent = latitude;
+        document.getElementById('lon').textContent = longitude;
+    }   
+    getIss()
+
+
+</script>
+</body>
+</html>
